@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Siege Multi-Platform Tracker</title>
+  <meta
+    name="description"
+    content="Live-style Rainbow Six tracker for PlayStation, Ubisoft, and Xbox with current rank, peak rank, HS percent, and live matches."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Live Cross-Platform Command Center</p>
+        <h1>Track PlayStation, Ubisoft, and Xbox in one place.</h1>
+        <p class="lede">
+          Built for the stats that matter mid-session: headshot percent, current rank, peak rank,
+          season form, and active 5v5 lobbies with all 10 player snapshots.
+        </p>
+      </div>
+      <div class="hero-stats">
+        <article class="hero-stat">
+          <span>Tracked Accounts</span>
+          <strong id="trackedAccounts">0</strong>
+        </article>
+        <article class="hero-stat">
+          <span>Live Matches</span>
+          <strong id="liveMatchesCount">0</strong>
+        </article>
+        <article class="hero-stat">
+          <span>Players In Lobby</span>
+          <strong id="playersInLobby">0</strong>
+        </article>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="left-rail">
+        <article class="panel">
+          <div class="section-heading">
+            <p class="eyebrow">Search</p>
+            <h2>Find a squad or player</h2>
+          </div>
+          <div class="control-stack">
+            <label class="field">
+              <span>Search gamertag</span>
+              <input id="searchInput" type="text" placeholder="Type a name like Nova or Ghost">
+            </label>
+            <label class="field">
+              <span>Platform</span>
+              <select id="platformFilter">
+                <option value="all">All platforms</option>
+                <option value="PlayStation">PlayStation</option>
+                <option value="Ubisoft">Ubisoft</option>
+                <option value="Xbox">Xbox</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Sort board by</span>
+              <select id="sortFilter">
+                <option value="rankScore">Rank score</option>
+                <option value="hsPercent">HS percent</option>
+                <option value="kd">K/D</option>
+                <option value="winRate">Win rate</option>
+              </select>
+            </label>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading">
+            <p class="eyebrow">What You Need</p>
+            <h2>Fast read</h2>
+          </div>
+          <div class="snapshot-list" id="snapshotList"></div>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading">
+            <p class="eyebrow">Status</p>
+            <h2>Data feed</h2>
+          </div>
+          <div class="feed-card">
+            <p class="feed-badge">Demo Live Mode</p>
+            <p id="feedStatus">
+              Rotating simulated live data is active. Wire your tracker API into the adapter in
+              <code>script.js</code> to make this fully real-time.
+            </p>
+            <button class="button button-primary" id="refreshButton" type="button">Refresh now</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="main-stage">
+        <article class="panel">
+          <div class="section-heading split-heading">
+            <div>
+              <p class="eyebrow">Overview</p>
+              <h2>Platform heat map</h2>
+            </div>
+            <p class="subtle" id="lastUpdated">Updated just now</p>
+          </div>
+          <div class="platform-grid" id="platformGrid"></div>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading">
+            <p class="eyebrow">Leaderboard</p>
+            <h2>Rank and accuracy board</h2>
+          </div>
+          <div class="leaderboard" id="leaderboard"></div>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading">
+            <p class="eyebrow">Live Matches</p>
+            <h2>Current lobbies with all 10 players</h2>
+          </div>
+          <div class="match-list" id="matchList"></div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
