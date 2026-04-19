@@ -286,14 +286,24 @@ select option {
 .leader-row,
 .match-card,
 .roster-card,
-.tracker-helper {
+.tracker-helper,
+.search-result-card {
   border-radius: 22px;
   padding: 16px;
 }
 
-.tracker-helper {
+.tracker-helper,
+.search-result-card {
   border: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(16, 28, 50, 0.96), rgba(7, 14, 25, 0.96));
+}
+
+.search-result-card {
+  margin-bottom: 14px;
+}
+
+.search-result-card strong {
+  font-size: 1.3rem;
 }
 
 .external-link-list {

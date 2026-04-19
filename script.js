@@ -71,6 +71,7 @@ const refs = {
   searchInput: document.querySelector("#searchInput"),
   platformFilter: document.querySelector("#platformFilter"),
   sortFilter: document.querySelector("#sortFilter"),
+  searchResultCard: document.querySelector("#searchResultCard"),
   snapshotList: document.querySelector("#snapshotList"),
   trackerLinks: document.querySelector("#trackerLinks"),
   platformGrid: document.querySelector("#platformGrid"),
@@ -173,6 +174,7 @@ function render() {
   refs.playersInLobby.textContent = String(filteredMatches.reduce((sum, match) => sum + match.teams.alpha.length + match.teams.bravo.length, 0));
   refs.lastUpdated.textContent = `Updated ${formatTime(state.lastUpdated)}`;
 
+  renderSearchResultCard(filteredPlayers);
   renderTrackerLinks(filteredPlayers.length);
   renderSnapshots(filteredPlayers, filteredMatches);
   renderPlatforms(displayPlayers);
@@ -374,6 +376,8 @@ function renderTrackerLinks(exactMatchCount) {
   const trackerUrl = selectedPlatform === "all"
     ? "https://r6.tracker.network/"
     : `https://r6.tracker.network/r6siege/profile/${platformSlug[selectedPlatform]}/${encodeURIComponent(query)}/overview`;
+  const ubisoftSearchUrl = "https://www.ubisoft.com/en-us/game/rainbow-six/siege/stats";
+  const statsCcUrl = `https://stats.cc/`;
 
   refs.trackerLinks.innerHTML = `
     <article class="tracker-helper">
@@ -381,12 +385,57 @@ function renderTrackerLinks(exactMatchCount) {
       <p class="meta-line">${query} | ${selectedPlatform === "all" ? "Choose a platform for a direct profile link" : selectedPlatform}</p>
       <div class="external-link-list">
         <a class="external-link" href="${trackerUrl}" target="_blank" rel="noreferrer">Open Tracker Network</a>
-        <a class="external-link" href="https://www.ubisoft.com/en-us/game/rainbow-six/siege/stats" target="_blank" rel="noreferrer">Open Ubisoft Stats</a>
-        <a class="external-link" href="https://stats.cc/" target="_blank" rel="noreferrer">Open Stats.cc Search</a>
+        <a class="external-link" href="${ubisoftSearchUrl}" target="_blank" rel="noreferrer">Open Ubisoft Stats</a>
+        <a class="external-link" href="${statsCcUrl}" target="_blank" rel="noreferrer">Open Stats.cc Search</a>
       </div>
       <p class="meta-line">If nothing resolves, try your linked Ubisoft Connect name. Console lookups often fail when the PSN/Xbox tag differs from the linked Ubisoft account name.</p>
     </article>
   `;
+}
+
+function renderSearchResultCard(filteredPlayers) {
+  const query = refs.searchInput.value.trim();
+  const selectedPlatform = refs.platformFilter.value;
+  const platformSlug = {
+    Ubisoft: "ubi",
+    PlayStation: "psn",
+    Xbox: "xbl",
+  };
+
+  if (!query) {
+    refs.searchResultCard.innerHTML = "";
+    return;
+  }
+
+  const exact = filteredPlayers.find((player) => player.name.toLowerCase() === query.toLowerCase());
+  const trackerUrl = selectedPlatform === "all"
+    ? "https://r6.tracker.network/"
+    : `https://r6.tracker.network/r6siege/profile/${platformSlug[selectedPlatform]}/${encodeURIComponent(query)}/overview`;
+
+  refs.searchResultCard.innerHTML = exact
+    ? `
+      <article class="search-result-card">
+        <h3>Search result</h3>
+        <strong>${exact.name}</strong>
+        <p class="meta-line">${exact.platform} | Current ${exact.currentRank} | Peak ${exact.peakRank}</p>
+        <div class="stat-pills">
+          <span class="rank-pill">${exact.rankScore} MMR</span>
+          <span class="rank-pill">${exact.hsPercent}% HS</span>
+          <span class="rank-pill">${exact.kd.toFixed(2)} K/D</span>
+          <span class="rank-pill">${exact.winRate}% WR</span>
+        </div>
+      </article>
+    `
+    : `
+      <article class="search-result-card">
+        <h3>No local match for "${query}"</h3>
+        <p class="meta-line">${selectedPlatform === "all" ? "Choose PlayStation, Ubisoft, or Xbox for a direct lookup." : `${selectedPlatform} direct lookup ready.`}</p>
+        <div class="external-link-list">
+          <a class="external-link" href="${trackerUrl}" target="_blank" rel="noreferrer">Open ${query} on Tracker Network</a>
+        </div>
+        <p class="meta-line">If this is your PlayStation name and it still fails, your linked Ubisoft Connect name may be different from your PSN name.</p>
+      </article>
+    `;
 }
 
 function renderNoMatchHelper(text) {
