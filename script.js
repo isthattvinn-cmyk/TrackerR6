@@ -72,6 +72,7 @@ const refs = {
   platformFilter: document.querySelector("#platformFilter"),
   sortFilter: document.querySelector("#sortFilter"),
   snapshotList: document.querySelector("#snapshotList"),
+  trackerLinks: document.querySelector("#trackerLinks"),
   platformGrid: document.querySelector("#platformGrid"),
   leaderboard: document.querySelector("#leaderboard"),
   matchList: document.querySelector("#matchList"),
@@ -164,16 +165,19 @@ function normalizeSortValue(value, rankName) {
 function render() {
   const filteredPlayers = getFilteredPlayers();
   const filteredMatches = getFilteredMatches(filteredPlayers);
+  const displayPlayers = filteredPlayers.length ? filteredPlayers : state.players;
+  const displayMatches = filteredPlayers.length ? filteredMatches : state.matches;
 
   refs.trackedAccounts.textContent = String(filteredPlayers.length);
   refs.liveMatchesCount.textContent = String(filteredMatches.length);
   refs.playersInLobby.textContent = String(filteredMatches.reduce((sum, match) => sum + match.teams.alpha.length + match.teams.bravo.length, 0));
   refs.lastUpdated.textContent = `Updated ${formatTime(state.lastUpdated)}`;
 
+  renderTrackerLinks(filteredPlayers.length);
   renderSnapshots(filteredPlayers, filteredMatches);
-  renderPlatforms(filteredPlayers);
-  renderLeaderboard(filteredPlayers);
-  renderMatches(filteredMatches);
+  renderPlatforms(displayPlayers);
+  renderLeaderboard(displayPlayers, filteredPlayers.length);
+  renderMatches(displayMatches, filteredPlayers.length);
 }
 
 function getFilteredMatches(filteredPlayers) {
@@ -260,22 +264,14 @@ function renderPlatforms(players) {
   }).join("");
 }
 
-function renderLeaderboard(players) {
-  if (!players.length) {
-    refs.leaderboard.innerHTML = `
-      <article class="leader-row">
-        <div class="leader-row-left">
-          <div>
-            <strong>No matching accounts</strong>
-            <p class="meta-line">Change the platform or search filter to bring the board back.</p>
-          </div>
-        </div>
-      </article>
-    `;
-    return;
-  }
+function renderLeaderboard(players, exactMatchCount) {
+  const helper = exactMatchCount
+    ? ""
+    : renderNoMatchHelper("No exact match in the local board. The leaderboard below is still showing the full demo pool while you use the real tracker links above.");
 
-  refs.leaderboard.innerHTML = players.map((player, index) => `
+  refs.leaderboard.innerHTML = `
+    ${helper}
+    ${players.map((player, index) => `
     <article class="leader-row">
       <div class="leader-row-left">
         <div class="position-badge">#${index + 1}</div>
@@ -294,21 +290,18 @@ function renderLeaderboard(players) {
         </div>
       </div>
     </article>
-  `).join("");
+  `).join("")}
+  `;
 }
 
-function renderMatches(matches) {
-  if (!matches.length) {
-    refs.matchList.innerHTML = `
-      <article class="match-card">
-        <h3>No live matches match the current filter.</h3>
-        <p class="meta-line">The tracker is still running, but nobody in the selected pool is currently shown in a lobby.</p>
-      </article>
-    `;
-    return;
-  }
+function renderMatches(matches, exactMatchCount) {
+  const helper = exactMatchCount
+    ? ""
+    : renderNoMatchHelper("True live R6 lobby rosters are not available here from a public browser API. This section is a structured demo board until you wire a backend or desktop-app source.");
 
-  refs.matchList.innerHTML = matches.map((match) => `
+  refs.matchList.innerHTML = `
+    ${helper}
+    ${matches.map((match) => `
     <article class="match-card">
       <div class="match-top">
         <div>
@@ -354,7 +347,55 @@ function renderMatches(matches) {
         </section>
       </div>
     </article>
-  `).join("");
+  `).join("")}
+  `;
+}
+
+function renderTrackerLinks(exactMatchCount) {
+  const query = refs.searchInput.value.trim();
+  const selectedPlatform = refs.platformFilter.value;
+
+  if (!query) {
+    refs.trackerLinks.innerHTML = `
+      <article class="tracker-helper">
+        <h3>Real tracker shortcuts</h3>
+        <p class="meta-line">Type your gamertag, then use the real tracker links here if the local demo board does not contain your account yet.</p>
+      </article>
+    `;
+    return;
+  }
+
+  const platformSlug = {
+    Ubisoft: "ubi",
+    PlayStation: "psn",
+    Xbox: "xbl",
+  };
+
+  const trackerUrl = selectedPlatform === "all"
+    ? "https://r6.tracker.network/"
+    : `https://r6.tracker.network/r6siege/profile/${platformSlug[selectedPlatform]}/${encodeURIComponent(query)}/overview`;
+
+  refs.trackerLinks.innerHTML = `
+    <article class="tracker-helper">
+      <h3>${exactMatchCount ? "Player found in demo pool" : "Open real trackers for this name"}</h3>
+      <p class="meta-line">${query} | ${selectedPlatform === "all" ? "Choose a platform for a direct profile link" : selectedPlatform}</p>
+      <div class="external-link-list">
+        <a class="external-link" href="${trackerUrl}" target="_blank" rel="noreferrer">Open Tracker Network</a>
+        <a class="external-link" href="https://www.ubisoft.com/en-us/game/rainbow-six/siege/stats" target="_blank" rel="noreferrer">Open Ubisoft Stats</a>
+        <a class="external-link" href="https://stats.cc/" target="_blank" rel="noreferrer">Open Stats.cc Search</a>
+      </div>
+      <p class="meta-line">If nothing resolves, try your linked Ubisoft Connect name. Console lookups often fail when the PSN/Xbox tag differs from the linked Ubisoft account name.</p>
+    </article>
+  `;
+}
+
+function renderNoMatchHelper(text) {
+  return `
+    <article class="tracker-helper">
+      <h3>Search guidance</h3>
+      <p class="meta-line">${text}</p>
+    </article>
+  `;
 }
 
 function renderPlayerLine(player) {

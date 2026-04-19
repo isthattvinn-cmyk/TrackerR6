@@ -158,7 +158,9 @@ h3 {
 .roster-grid,
 .stat-pills,
 .metric-row,
-.compact-grid {
+.compact-grid,
+.tracker-links,
+.external-link-list {
   display: grid;
   gap: 14px;
 }
@@ -261,7 +263,8 @@ select option {
 .feed-badge,
 .platform-badge,
 .rank-pill,
-.signal-pill {
+.signal-pill,
+.external-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -282,9 +285,31 @@ select option {
 .platform-card,
 .leader-row,
 .match-card,
-.roster-card {
+.roster-card,
+.tracker-helper {
   border-radius: 22px;
   padding: 16px;
+}
+
+.tracker-helper {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(16, 28, 50, 0.96), rgba(7, 14, 25, 0.96));
+}
+
+.external-link-list {
+  grid-template-columns: 1fr;
+}
+
+.external-link {
+  width: 100%;
+  text-decoration: none;
+  color: var(--text);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.external-link:hover {
+  border-color: rgba(110, 231, 255, 0.42);
 }
 
 .snapshot-item h3,
